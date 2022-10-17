@@ -7,15 +7,13 @@
 #include <DirectXMath.h>
 #include <DirectXTex.h>
 #include <d3dcompiler.h>
-#define DIRECTINPUT_VERSION     0x0800   // DirectInputのバージョン指定
-#include <dinput.h>
 #include <wrl.h>
+
+#include "Input.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -214,6 +212,9 @@ LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+    // ポインタ
+    Input* input = nullptr;
 
 #pragma region WindowsAPI初期化処理
     // ウィンドウサイズ
@@ -468,22 +469,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     // DirectX初期化処理　ここまで
 #pragma endregion
 
-    // DirectInputの初期化
-    ComPtr<IDirectInput8> directInput;
-    result = DirectInput8Create(
-        w.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
-    assert(SUCCEEDED(result));
-
-    // キーボードデバイスの生成
-    ComPtr<IDirectInputDevice8> keyboard;
-    result = directInput->CreateDevice(GUID_SysKeyboard, &keyboard, NULL);
-    // 入力データ形式のセット
-    result = keyboard->SetDataFormat(&c_dfDIKeyboard); // 標準形式
-    assert(SUCCEEDED(result));
-    // 排他制御レベルのセット
-    result = keyboard->SetCooperativeLevel(
-        hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-    assert(SUCCEEDED(result));
+    // 入力の初期化
+    input = new Input();
+    input->Initialize(w.hInstance, hwnd);
 
 #pragma region 描画初期化処理
 
@@ -954,7 +942,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     device->CreateShaderResourceView(texBuff2.Get(), &srvDesc, srvHandle);
 
     size_t textureIndex = 0;
-    BYTE key[256] = {};
 
     // ゲームループ
     while (true) {
@@ -969,10 +956,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             break;
         }
 
-        // キーボード情報の取得開始
-        keyboard->Acquire();
-        // 全キーの入力状態を取得する
-        keyboard->GetDeviceState(sizeof(key), key);
+        // 入力の更新
+        input->Update();
 
         //// 数字の0キーが押されていたら
         //if (key[DIK_0]) 
@@ -989,26 +974,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         //    constMapMaterial->color = XMFLOAT4(red, 1.0f - red, 0, 0.5f);              // RGBAで半透明の赤
         //}
 
-        if (key[DIK_D] || key[DIK_A])
-        {
-            if (key[DIK_D]) { angle += XMConvertToRadians(1.0f); }
-            else if (key[DIK_A]) { angle -= XMConvertToRadians(1.0f); }
+        //if (key[DIK_D] || key[DIK_A])
+        //{
+        //    if (key[DIK_D]) { angle += XMConvertToRadians(1.0f); }
+        //    else if (key[DIK_A]) { angle -= XMConvertToRadians(1.0f); }
 
-            // angleラジアンだけY軸まわりに回転。半径は-100
-            eye.x = -100 * sinf(angle);
-            eye.z = -100 * cosf(angle);
+        //    // angleラジアンだけY軸まわりに回転。半径は-100
+        //    eye.x = -100 * sinf(angle);
+        //    eye.z = -100 * cosf(angle);
 
-            matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
-        }
+        //    matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+        //}
 
-        // 座標操作
-        if (key[DIK_UP] || key[DIK_DOWN] || key[DIK_RIGHT] || key[DIK_LEFT])
-        {
-            if (key[DIK_UP]) { object3ds[0].position.y += 1.0f; }
-            else if (key[DIK_DOWN]) { object3ds[0].position.y -= 1.0f; }
-            if (key[DIK_RIGHT]) { object3ds[0].position.x += 1.0f; }
-            else if (key[DIK_LEFT]) { object3ds[0].position.x -= 1.0f; }
-        }
+        //// 座標操作
+        //if (key[DIK_UP] || key[DIK_DOWN] || key[DIK_RIGHT] || key[DIK_LEFT])
+        //{
+        //    if (key[DIK_UP]) { object3ds[0].position.y += 1.0f; }
+        //    else if (key[DIK_DOWN]) { object3ds[0].position.y -= 1.0f; }
+        //    if (key[DIK_RIGHT]) { object3ds[0].position.x += 1.0f; }
+        //    else if (key[DIK_LEFT]) { object3ds[0].position.x -= 1.0f; }
+        //}
 
         // 全オブジェクトについて処理
         for (size_t i = 0; i < _countof(object3ds); i++)
@@ -1126,6 +1111,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
     // ウィンドウクラスを登録解除
     UnregisterClass(w.lpszClassName, w.hInstance);
+
+    // 入力解放
+    delete input;
 
     return 0;
 }
