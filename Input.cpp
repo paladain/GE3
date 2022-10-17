@@ -1,6 +1,5 @@
 #include "Input.h"
 #include <cassert>
-
 //#include <wrl.h>
 
 //#define DIRECTION_VERSION 0x0800 // DirectInputのバージョン指定
