@@ -17,6 +17,8 @@ public: // メンバ関数
 	// メンバ関数
 	void Update();
 
+	bool PushKey(BYTE keyNumber);
+
 private: // メンバ変数
 	// キーボードのデバイス
 	ComPtr<IDirectInputDevice8> keyboard;
