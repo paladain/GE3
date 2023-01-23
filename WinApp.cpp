@@ -1,6 +1,8 @@
 #include "WinApp.h"
 #include <Windows.h>
 
+#pragma comment(lib, "winmm.lib")
+
 LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
     // メッセージで分岐
@@ -19,6 +21,10 @@ void WinApp::Initialize() {
     //// ウィンドウサイズ
     //const int window_width = 1280;  // 横幅
     //const int window_height = 720;  // 縦幅
+
+    // システムタイマーの分解能を上げる
+    timeBeginPeriod(1);
+
 
     // ウィンドウクラスの設定
     // WNDCLASSEX w{};
@@ -75,4 +81,9 @@ bool WinApp::ProcessMessage(){
     }
 
     return false;
+}
+
+void WinApp::FixFPS() {
+    // システムタイマーの分解能を上げる
+    timeBeginPeriod(1);
 }

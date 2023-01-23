@@ -15,7 +15,7 @@ public: // メンバ関数
 	// 初期化
 	void Initialize();
 	// 更新
-	void Update();
+	//void Update();
 	// 終了
 	void Finalize();
 
@@ -25,6 +25,9 @@ public: // メンバ関数
 	// getter
 	HWND GetHwnd() const { return hwnd; }
 	HINSTANCE GetHInstance() const { return w.hInstance; }
+
+	//FPSの固定
+	void FixFPS();
 
 private:
 	// ウィンドウハンドル
