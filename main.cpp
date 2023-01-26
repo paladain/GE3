@@ -22,12 +22,12 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 
 // 頂点データ構造体
-struct Vertex
-{
-    XMFLOAT3 pos;       // xyz座標
-    XMFLOAT3 normal;    // 法線ベクトル
-    XMFLOAT2 uv;        // uv座標
-};
+//struct Vertex
+//{
+//    XMFLOAT3 pos;       // xyz座標
+//    XMFLOAT3 normal;    // 法線ベクトル
+//    XMFLOAT2 uv;        // uv座標
+//};
 
 // 定数バッファ用データ構造体（マテリアル）
 struct ConstBufferDataMaterial {
@@ -727,58 +727,58 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 最初のシーンの更新
 #pragma endregion 最初のシーンの更新
 
-        //// メッセージがある？
-        //if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-        //    TranslateMessage(&msg); // キー入力メッセージの処理
-        //    DispatchMessage(&msg); // プロシージャにメッセージを送る
-        //}
+        // メッセージがある？
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg); // キー入力メッセージの処理
+            DispatchMessage(&msg); // プロシージャにメッセージを送る
+        }
 
-        //// ✖ボタンで終了メッセージが来たらゲームループを抜ける
-        //if (msg.message == WM_QUIT) {
-        //    break;
-        //}
+        // ✖ボタンで終了メッセージが来たらゲームループを抜ける
+        if (msg.message == WM_QUIT) {
+            break;
+        }
 
-        ////// 数字の0キーが押されていたら
-        //if (input->TriggerKey(DIK_0)) 
-        //{
-        //    OutputDebugStringA("Hit 0\n");  // 出力ウィンドウに「Hit 0」と表示
-        //}
+        //// 数字の0キーが押されていたら
+        if (input->TriggerKey(DIK_0)) 
+        {
+            OutputDebugStringA("Hit 0\n");  // 出力ウィンドウに「Hit 0」と表示
+        }
 
-        //// DirectX毎フレーム処理　ここから
-        //static float red = 1.0f;
+        // DirectX毎フレーム処理　ここから
+        static float red = 1.0f;
 
-        //if (input->PushKey(DIK_SPACE)) {
-        //    red -= 0.01f;
-        //    red = max(0, red);
-        //    constMapMaterial->color = XMFLOAT4(red, 1.0f - red, 0, 0.5f);              // RGBAで半透明の赤
-        //}
+        if (input->PushKey(DIK_SPACE)) {
+            red -= 0.01f;
+            red = max(0, red);
+            constMapMaterial->color = XMFLOAT4(red, 1.0f - red, 0, 0.5f);              // RGBAで半透明の赤
+        }
 
-        //if (input->PushKey(DIK_D) || input->PushKey(DIK_A))
-        //{
-        //    if (input->PushKey(DIK_D)) { angle += XMConvertToRadians(1.0f); }
-        //    else if (input->PushKey(DIK_A)) { angle -= XMConvertToRadians(1.0f); }
+        if (input->PushKey(DIK_D) || input->PushKey(DIK_A))
+        {
+            if (input->PushKey(DIK_D)) { angle += XMConvertToRadians(1.0f); }
+            else if (input->PushKey(DIK_A)) { angle -= XMConvertToRadians(1.0f); }
 
-        //    // angleラジアンだけY軸まわりに回転。半径は-100
-        //    eye.x = -100 * sinf(angle);
-        //    eye.z = -100 * cosf(angle);
+            // angleラジアンだけY軸まわりに回転。半径は-100
+            eye.x = -100 * sinf(angle);
+            eye.z = -100 * cosf(angle);
 
-        //    matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
-        //}
+            matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+        }
 
-        //// 座標操作
-        //if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT))
-        //{
-        //    if (input->PushKey(DIK_UP)) { object3ds[0].position.y += 1.0f; }
-        //    else if (input->PushKey(DIK_DOWN)) { object3ds[0].position.y -= 1.0f; }
-        //    if (input->PushKey(DIK_RIGHT)) { object3ds[0].position.x += 1.0f; }
-        //    else if (input->PushKey(DIK_LEFT)) { object3ds[0].position.x -= 1.0f; }
-        //}
+        // 座標操作
+        if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT))
+        {
+            if (input->PushKey(DIK_UP)) { object3ds[0].position.y += 1.0f; }
+            else if (input->PushKey(DIK_DOWN)) { object3ds[0].position.y -= 1.0f; }
+            if (input->PushKey(DIK_RIGHT)) { object3ds[0].position.x += 1.0f; }
+            else if (input->PushKey(DIK_LEFT)) { object3ds[0].position.x -= 1.0f; }
+        }
 
-        //// 全オブジェクトについて処理
-        //for (size_t i = 0; i < _countof(object3ds); i++)
-        //{
-        //    UpdateObject3d(&object3ds[i], matView, matProjection);
-        //}
+        // 全オブジェクトについて処理
+        for (size_t i = 0; i < _countof(object3ds); i++)
+        {
+            UpdateObject3d(&object3ds[i], matView, matProjection);
+        }
 
         // 描画前処理
         dxCommon->PreDraw();
@@ -811,6 +811,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         //{
         //    DrawObject3d(&object3ds[i], dxCommon->GetCommandList(), vbView, ibView, _countof(indices));
         //}
+
+        spriteCommon->Draw(dxCommon);
 
 #pragma endregion 最初のシーンの描画
 

@@ -7,19 +7,12 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-struct Vertex
-{
-    XMFLOAT3 pos;       // xyz座標
-    XMFLOAT3 normal;    // 法線ベクトル
-    XMFLOAT2 uv;        // uv座標
-};
-
 void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 {
     HRESULT result;
 
     // 頂点データ
-    Vertex vertices[] = {
+    vertices[] = {
         //  x      y      z       u     v
         // 前
         {{ -5.0f, -5.0f, -5.0f}, {},  {0.0f, 1.0f}}, // 左下
@@ -352,4 +345,34 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
     assert(SUCCEEDED(result));
 
 #pragma endregion
+}
+
+void SpriteCommon::Draw(DirectXCommon* dxCommon)
+{
+    // プリミティブ形状の設定コマンド
+    dxCommon->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 三角形リスト
+    // パイプラインステートとルートシグネチャの設定コマンド
+    dxCommon->GetCommandList()->SetPipelineState(pipelineState.Get());
+    dxCommon->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
+    // 頂点バッファビューの設定コマンド
+    dxCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
+    // インデックスバッファビューの設定コマンド
+    dxCommon->GetCommandList()->IASetIndexBuffer(&ibView);
+    // 定数バッファビュー(CBV)の設定コマンド
+    dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
+    // SRVヒープの設定コマンド
+    ID3D12DescriptorHeap* descHeaps[] = { srvHeap.Get() };
+    dxCommon->GetCommandList()->SetDescriptorHeaps(1, descHeaps);
+    // SRVヒープの先頭ハンドルを取得（SRVを指しているはず）
+    D3D12_GPU_DESCRIPTOR_HANDLE srvGpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
+    srvGpuHandle.ptr += textureIndex * dxCommon->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+    // SRVヒープの先頭にあるSRVをルートパラメータ1番に設定
+    dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvGpuHandle);
+
+    // 全オブジェクトについて処理
+    for (int i = 0; i < _countof(object3ds); i++)
+    {
+        DrawObject3d(&object3ds[i], dxCommon->GetCommandList(), vbView, ibView, _countof(indices));
+    }
 }
